@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Gastos</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+  <h1>¿Cuánto me costó vivir este mes?</h1>
+
+  <div class="formulario">
+    <input type="text" id="inputDescripcion" placeholder="Descripción del gasto">
+    <input type="number" id="inputMonto" placeholder="Monto en pesos" min="0" step="1">
+    <select id="selectCategoria">
+      <option value="Comida">Comida</option>
+      <option value="Transporte">Transporte</option>
+      <option value="Entretenimiento">Entretenimiento</option>
+      <option value="Servicios">Servicios</option>
+      <option value="Otros">Otros</option>
+    </select>
+    <button id="btnAgregar" type="button">Agregar gasto</button>
+  </div>
+
+  <div class="resumen">
+    <h2>Total de hoy: <span id="totalHoy">$0</span></h2>
+    <h2>Total del mes: <span id="totalMes">$0</span></h2>
+  </div>
+
+  <section>
+    <h3>Totales por categoría</h3>
+    <ul id="listaCategorias"></ul>
+  </section>
+
+  <section>
+    <div class="encabezado-lista">
+      <h3>Todos los gastos</h3>
+      <label class="filtro">
+        Ver:
+        <select id="filtroLista">
+          <option value="Todas">Todas</option>
+          <option value="Comida">Comida</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Entretenimiento">Entretenimiento</option>
+          <option value="Servicios">Servicios</option>
+          <option value="Otros">Otros</option>
+        </select>
+      </label>
+    </div>
+    <ul id="listaGastos"></ul>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>

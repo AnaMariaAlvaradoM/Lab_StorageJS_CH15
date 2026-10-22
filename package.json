@@ -1,0 +1,12 @@
+{
+  "name": "lab-storage-ch15",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lab de almacenamiento calificable · Registro de gastos · Generation Colombia Cohorte 15",
+  "scripts": {
+    "test": "node scripts/calificar.js"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
+}

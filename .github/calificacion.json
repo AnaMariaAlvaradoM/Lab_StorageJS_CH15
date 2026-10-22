@@ -1,0 +1,19 @@
+{
+  "curso": "💸 Registro de gastos · localStorage",
+  "fechaLimite": "",
+  "patronTest": "^test\\(",
+  "entregables": ["registro-gastos/script.js"],
+  "protegidos": ["tests/", "scripts/", ".github/", "package.json", "package-lock.json", "registro-gastos/index.html", "registro-gastos/estilos.css"],
+  "ejercicios": [
+    { "id": "01", "titulo": "Guardar (setItem)", "test": "tests/01-guardar.test.js" },
+    { "id": "02", "titulo": "Cargar (getItem)", "test": "tests/02-cargar.test.js" },
+    { "id": "03", "titulo": "Crear el gasto", "test": "tests/03-crear-gasto.test.js" },
+    { "id": "04", "titulo": "Agregar y guardar", "test": "tests/04-agregar.test.js" },
+    { "id": "05", "titulo": "Hoy y este mes", "test": "tests/05-fechas.test.js" },
+    { "id": "06", "titulo": "Totales con reduce", "test": "tests/06-totales.test.js" },
+    { "id": "07", "titulo": "Por categoría", "test": "tests/07-categorias.test.js" },
+    { "id": "08", "titulo": "Pintar la lista", "test": "tests/08-lista.test.js" },
+    { "id": "09", "titulo": "Eliminar", "test": "tests/09-eliminar.test.js" },
+    { "id": "10", "titulo": "Filtro (sessionStorage)", "test": "tests/10-filtro.test.js" }
+  ]
+}
