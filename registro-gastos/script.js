@@ -181,13 +181,24 @@ function esDeEsteMes(gasto) {
 //   esDeEsteMes (con .filter) y sumarMontos.
 // ============================================================
 function sumarMontos(lista) {
-  // Tu código aquí
+
+      return lista.reduce((acumulador, gasto) => {
+      return acumulador + gasto.monto;
+      }, 0);
+
 }
 
 function mostrarTotales() {
-  // Tu código aquí
-}
 
+      const gastosHoy = gastos.filter(esDeHoy);
+      const gastosMes = gastos.filter(esDeEsteMes);
+
+      const totalGastosHoy = sumarMontos(gastosHoy);
+      const totalGastosMes = sumarMontos(gastosMes);
+
+totalHoy.textContent = formatearPesos(totalGastosHoy);    
+totalMes.textContent = formatearPesos(totalGastosMes);
+}
 // ============================================================
 // Ejercicio 07 · mostrarCategorias()
 // ============================================================
@@ -196,9 +207,23 @@ function mostrarTotales() {
 // Las 5 categorías siempre aparecen, aunque su total sea $0.
 // ============================================================
 function mostrarCategorias() {
-  // Tu código aquí
-}
 
+      listaCategorias.innerHTML = "";
+
+      for (const categoria of CATEGORIAS) {
+
+          const gastosCategoria = gastos.filter(
+              gasto => gasto.categoria === categoria
+          );
+
+      const total = sumarMontos(gastosCategoria);
+      const li = document.createElement("li");
+
+    li.textContent = categoria + ": " + formatearPesos(total);
+
+listaCategorias.appendChild(li);
+         }
+}
 // ============================================================
 // Ejercicio 08 · mostrarLista()
 // ============================================================
@@ -208,9 +233,29 @@ function mostrarCategorias() {
 // (En el Ejercicio 10 vuelves aquí para agregar el filtro.)
 // ============================================================
 function mostrarLista() {
-  // Tu código aquí
-}
 
+       listaGastos.innerHTML = "";
+
+            gastos.forEach((gasto, index) => {
+
+            const li = document.createElement("li");
+
+            li.innerHTML =
+                  gasto.descripcion +
+                  " - " +
+                  formatearPesos(gasto.monto) +
+                  " (" +
+                  gasto.categoria +
+                  ")" +
+                  '<button class="eliminar" data-index="' +
+                  index +
+                  '">Eliminar</button>';
+
+listaGastos.appendChild(li);
+
+            });
+
+}
 // ============================================================
 // Ejercicio 09 · eliminarGasto(evento): UN escuchador en la lista
 // ============================================================
