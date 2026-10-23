@@ -161,13 +161,18 @@ function esDeEsteMes(gasto) {
 //   esDeEsteMes (con .filter) y sumarMontos.
 // ============================================================
 function sumarMontos(lista) {
-  // Tu código aquí
+  return lista.reduce(function (total, gasto) {
+    return total + gasto.monto;
+  }, 0);
 }
 
 function mostrarTotales() {
-  // Tu código aquí
-}
+  const gastosDeHoy = gastos.filter(esDeHoy);
+  const gastosDelMes = gastos.filter(esDeEsteMes);
 
+  totalHoy.textContent = formatearPesos(sumarMontos(gastosDeHoy));
+  totalMes.textContent = formatearPesos(sumarMontos(gastosDelMes));
+}
 // ============================================================
 // Ejercicio 07 · mostrarCategorias()
 // ============================================================
