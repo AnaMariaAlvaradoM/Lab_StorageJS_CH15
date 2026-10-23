@@ -43,6 +43,8 @@ function formatearPesos(valor) {
 // ============================================================
 function guardarGastos() {
   // Tu código aquí
+  const textoGastos = JSON.stringify(gastos);
+  localStorage.setItem(CLAVE_GASTOS, textoGastos);
 }
 
 // ============================================================
@@ -56,6 +58,14 @@ function guardarGastos() {
 // ============================================================
 function cargarGastos() {
   // Tu código aquí
+  try {
+    
+    const texto = localStorage.getItem(CLAVE_GASTOS);
+    if (!texto) {
+      gastos = [];
+      return;
+    }
+  }
 }
 
 // ============================================================
@@ -70,8 +80,18 @@ function cargarGastos() {
 // ============================================================
 function crearGasto(descripcion, monto, categoria) {
   // Tu código aquí
-}
+  const descripcionLimpia = descripcion ? descripcion.trim() : "";
+  const montoNumerico = Number(monto);
+  if (descripcionLimpia === "" || Number.isNaN(montoNumerico) || montoNumerico <= 0) {
+    return null;
+  }return {
+    descripcion: descripcionLimpia,
+    monto: montoNumerico,
+    categoria: categoria,
+    fecha: new Date().toISOString()
+  };
 
+}
 // ============================================================
 // Ejercicio 04 · agregarGasto(): cambiar, guardar, pintar
 // ============================================================
@@ -85,6 +105,25 @@ function crearGasto(descripcion, monto, categoria) {
 // ============================================================
 function agregarGasto() {
   // Tu código aquí
+  function agregarGasto() {
+    const descripcionInput = document.getElementById("descripcion");
+  const montoInput = document.getElementById("monto");
+  const categoriaInput = document.getElementById("categoria");
+
+  const montoNumerico = Number(montoInput.value);
+
+  const nuevoGasto = crearGasto(descripcionInput.value, montoNumerico, categoriaInput.value);
+
+  if (nuevoGasto === null) {
+    return;
+  }
+  gastos.push(nuevoGasto);
+
+  descripcionInput.value = "  ";
+  montoInput.value = "  ";
+  guardarGastos();
+  actualizarTodo();
+}
 }
 
 // ============================================================
