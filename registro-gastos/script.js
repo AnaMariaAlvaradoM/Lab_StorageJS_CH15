@@ -255,11 +255,21 @@ function eliminarGasto(evento) {
 //   de otras categorías (data-index sigue siendo la posición en gastos)
 // ============================================================
 function cambiarFiltro() {
-  // Tu código aquí
+  filtroActual = filtroLista.value;
+  sessionStorage.setItem(CLAVE_FILTRO, filtroActual);
+  mostrarLista();
 }
 
 function cargarFiltro() {
-  // Tu código aquí
+  const guardado = sessionStorage.getItem(CLAVE_FILTRO);
+
+  if (guardado === null) {
+    filtroActual = "Todas";
+  } else {
+    filtroActual = guardado;
+  }
+
+  filtroLista.value = filtroActual;
 }
 
 // ===== Pintar todo (ya viene lista) =====
