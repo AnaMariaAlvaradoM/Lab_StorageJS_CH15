@@ -42,7 +42,7 @@ function formatearPesos(valor) {
 // → empaca el arreglo con JSON.stringify.
 // ============================================================
 function guardarGastos() {
-  // Tu código aquí
+  localStorage.setItem(CLAVE_GASTOS, JSON.stringify(gastos));
 }
 
 // ============================================================
@@ -55,7 +55,16 @@ function guardarGastos() {
 //     (usa try/catch: la app debe seguir funcionando)
 // ============================================================
 function cargarGastos() {
-  // Tu código aquí
+  const textoClaveGastos = localStorage.getItem(CLAVE_GASTOS);
+  if (textoClaveGastos === null) {
+    gastos = [];
+  } else {
+    try {
+      gastos = JSON.parse(textoClaveGastos);
+    } catch (error) {
+      gastos = [];
+    }
+  }
 }
 
 // ============================================================
@@ -69,7 +78,13 @@ function cargarGastos() {
 // un número mayor que 0 (ojo: Number("abc") da NaN).
 // ============================================================
 function crearGasto(descripcion, monto, categoria) {
-  // Tu código aquí
+  const descripcionEspacios = descripcion.trim();
+  const textoFecha = new Date().toISOString();
+  if (descripcionEspacios === '' || monto <= 0 || Number.isNaN(monto)){
+    return null;
+  }
+
+  return {descripcion: descripcionEspacios, monto: monto, categoria: categoria, fecha: textoFecha};
 }
 
 // ============================================================
@@ -84,7 +99,16 @@ function crearGasto(descripcion, monto, categoria) {
 //   4. guárdalo (Ejercicio 01) y vuelve a pintar todo: actualizarTodo()
 // ============================================================
 function agregarGasto() {
-  // Tu código aquí
+  const gastoCreado = crearGasto(inputDescripcion.value, Number(inputMonto.value), selectCategoria.value);
+  if (gastoCreado === null){
+    return;
+  }
+  gastos.push(gastoCreado);
+  inputDescripcion.value = '';
+  inputMonto.value = '';
+  guardarGastos();
+  actualizarTodo();
+
 }
 
 // ============================================================
@@ -96,11 +120,31 @@ function agregarGasto() {
 // No compares el texto completo: la hora casi nunca es la misma.
 // ============================================================
 function esDeHoy(gasto) {
-  // Tu código aquí
+  const gastoFecha = new Date(gasto.fecha);
+  const fechaHoy = new Date();
+  const gastoFechaDia = gastoFecha.getDate();
+  const gastoFechaMes = gastoFecha.getMonth();
+  const gastoFechaAño = gastoFecha.getFullYear();
+  const fechaDiaHoy = fechaHoy.getDate();
+  const fechaMesHoy = fechaHoy.getMonth();
+  const fechaAñoHoy = fechaHoy.getFullYear();
+  if (gastoFechaDia === fechaDiaHoy && gastoFechaMes === fechaMesHoy && gastoFechaAño === fechaAñoHoy) {
+    return true;
+  }
+  return false;
 }
 
 function esDeEsteMes(gasto) {
-  // Tu código aquí
+  const gastoFecha = new Date(gasto.fecha);
+  const fechaHoy = new Date();
+  const gastoFechaMes = gastoFecha.getMonth();
+  const gastoFechaAño = gastoFecha.getFullYear();
+  const fechaMesHoy = fechaHoy.getMonth();
+  const fechaAñoHoy = fechaHoy.getFullYear();
+  if (gastoFechaMes === fechaMesHoy && gastoFechaAño === fechaAñoHoy) {
+    return true;
+  }
+  return false;
 }
 
 // ============================================================
