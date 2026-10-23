@@ -43,6 +43,9 @@ function formatearPesos(valor) {
 // ============================================================
 function guardarGastos() {
   // Tu código aquí
+  const gastosTexto = JSON.stringify(gastos);
+  localStorage.setItem(CLAVE_GASTOS, gastosTexto);
+  //localStorage.setItem(CLAVE_GASTOS, JSON.stringify(gastos))
 }
 
 // ============================================================
@@ -56,6 +59,18 @@ function guardarGastos() {
 // ============================================================
 function cargarGastos() {
   // Tu código aquí
+  const texto = localStorage.getItem(CLAVE_GASTOS);
+
+  if (texto === null) {
+    gastos = [];
+    return;
+  }
+  try {
+    gastos = JSON.parse(texto);
+  } catch (error) {
+    gastos = [];
+    console.warn("El almacenamiento estaba dañado, se reinició la lista.")
+  }
 }
 
 // ============================================================
@@ -70,6 +85,17 @@ function cargarGastos() {
 // ============================================================
 function crearGasto(descripcion, monto, categoria) {
   // Tu código aquí
+  
+  if (descripcion.trim() === "" || Number.isNaN(monto) || monto <= 0){
+    return null;
+  }
+
+  return {
+  descripcion: descripcion.trim(),
+  monto: monto,
+  categoria: categoria,
+  fecha: new Date().toISOString()
+};
 }
 
 // ============================================================
@@ -85,6 +111,17 @@ function crearGasto(descripcion, monto, categoria) {
 // ============================================================
 function agregarGasto() {
   // Tu código aquí
+  const nuevoGasto = crearGasto(inputDescripcion.value, Number(inputMonto.value), selectCategoria.value);
+  
+  if (nuevoGasto === null) {
+    return;
+  }
+  gastos.push(nuevoGasto);
+  inputDescripcion.value = "";
+  inputMonto.value = "";
+  
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -97,10 +134,20 @@ function agregarGasto() {
 // ============================================================
 function esDeHoy(gasto) {
   // Tu código aquí
+  const fechaGasto = new Date(gasto.fecha);
+  if (fechaGasto.getDate() === new Date().getDate() && fechaGasto.getMonth() === new Date().getMonth() && fechaGasto.getFullYear() === new Date().getFullYear() ) {
+    return true;    
+  }
+  return false;
 }
 
 function esDeEsteMes(gasto) {
   // Tu código aquí
+  const fechaGasto = new Date(gasto.fecha);
+  if (fechaGasto.getMonth() === new Date().getMonth() && fechaGasto.getFullYear() === new Date().getFullYear() ) {
+    return true;    
+  }
+  return false;
 }
 
 // ============================================================
