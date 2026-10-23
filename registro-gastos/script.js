@@ -181,7 +181,17 @@ function mostrarTotales() {
 // Las 5 categorías siempre aparecen, aunque su total sea $0.
 // ============================================================
 function mostrarCategorias() {
-  // Tu código aquí
+  listaCategorias.innerHTML = "";
+
+  for (const categoria of CATEGORIAS) {
+    const gastosDeLaCategoria = gastos.filter(function (gasto) {
+      return gasto.categoria === categoria;
+    });
+
+    const li = document.createElement("li");
+    li.textContent = categoria + ": " + formatearPesos(sumarMontos(gastosDeLaCategoria));
+    listaCategorias.appendChild(li);
+  }
 }
 
 // ============================================================
