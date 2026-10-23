@@ -132,11 +132,24 @@ function agregarGasto() {
 // No compares el texto completo: la hora casi nunca es la misma.
 // ============================================================
 function esDeHoy(gasto) {
-  // Tu código aquí
+  const fecha = new Date(gasto.fecha); // el texto guardado se vuelve fecha otra vez
+  const hoy = new Date();
+
+  return (
+    fecha.getDate() === hoy.getDate() &&
+    fecha.getMonth() === hoy.getMonth() &&
+    fecha.getFullYear() === hoy.getFullYear()
+  );
 }
 
 function esDeEsteMes(gasto) {
-  // Tu código aquí
+  const fecha = new Date(gasto.fecha);
+  const hoy = new Date();
+
+  return (
+    fecha.getMonth() === hoy.getMonth() &&
+    fecha.getFullYear() === hoy.getFullYear()
+  );
 }
 
 // ============================================================
