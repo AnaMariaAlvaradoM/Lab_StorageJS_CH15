@@ -82,7 +82,22 @@ function cargarGastos() {
 // un número mayor que 0 (ojo: Number("abc") da NaN).
 // ============================================================
 function crearGasto(descripcion, monto, categoria) {
-  // Tu código aquí
+  const textoLimpio = descripcion.trim();
+
+  if (textoLimpio === "") {
+    return null;
+  }
+
+  if (Number.isNaN(monto) || monto <= 0) {
+    return null;
+  }
+
+  return {
+    descripcion: textoLimpio,
+    monto: monto,
+    categoria: categoria,
+    fecha: new Date().toISOString()
+  };
 }
 
 // ============================================================
