@@ -43,6 +43,10 @@ function formatearPesos(valor) {
 // ============================================================
 function guardarGastos() {
   // Tu código aquí
+  localStorage.setItem(CLAVE_GASTOS, JSON.stringify(gastos))
+  // Explicacion: en esta funcion guardo los datos en localstorage y uso
+  // JSON.stringify para convertir el arreglo en texto
+  // setItem para guardar el texto en la clave => CLAVE_GASTOS y asi poder identificarlo
 }
 
 // ============================================================
