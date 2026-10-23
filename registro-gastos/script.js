@@ -280,6 +280,11 @@ function mostrarLista() {
 
   //Recorrer el arreglo de gastos
   listaGastosActual.forEach((gasto, index) => {
+    //ejercio 10 -> si filtroActual no es "Todas", sáltate los gastos
+    // de otras categorías (data-index sigue siendo la posición en gastos)
+    if (filtroActual !== "Todas" && gasto.categoria !== filtroActual) {
+      return;
+    }
     //Crear el elemento <li>
     const li = document.createElement("li");
 
