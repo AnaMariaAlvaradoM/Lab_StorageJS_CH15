@@ -112,7 +112,21 @@ function crearGasto(descripcion, monto, categoria) {
 //   4. guárdalo (Ejercicio 01) y vuelve a pintar todo: actualizarTodo()
 // ============================================================
 function agregarGasto() {
-  // Tu código aquí
+  const nuevo = crearGasto(
+    inputDescripcion.value,
+    Number(inputMonto.value),
+    selectCategoria.value
+  );
+
+  if (nuevo === null) {
+    return;
+  }
+
+  gastos.push(nuevo);
+  inputDescripcion.value = "";
+  inputMonto.value = "";
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
