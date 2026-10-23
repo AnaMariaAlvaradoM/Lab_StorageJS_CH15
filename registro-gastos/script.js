@@ -30,146 +30,150 @@ const listaGastos = document.querySelector("#listaGastos");
 const filtroLista = document.querySelector("#filtroLista");
 
 // ===== Ayuda (ya viene lista): 7950 → "$7.950" =====
+
 function formatearPesos(valor) {
   return "$" + valor.toLocaleString("es-CO");
 }
 
-// ============================================================
-// Ejercicio 01 · guardarGastos(): del arreglo al almacenamiento
-// ============================================================
-// Guarda TODO el arreglo gastos en localStorage, con la clave
-// CLAVE_GASTOS. Recuerda: localStorage solo guarda texto
-// → empaca el arreglo con JSON.stringify.
-// ============================================================
 function guardarGastos() {
-  // Tu código aquí
+  const texto = JSON.stringify(gastos);
+  localStorage.setItem(CLAVE_GASTOS, texto);
+
 }
 
-// ============================================================
-// Ejercicio 02 · cargarGastos(): leer sin que un dato roto tumbe la app
-// ============================================================
-// Lee el texto guardado con la clave CLAVE_GASTOS y ponlo en gastos:
-//   - si no hay nada guardado (getItem da null) → gastos = []
-//   - si hay texto → gastos = JSON.parse(texto)
-//   - si el texto está dañado (JSON.parse falla) → gastos = []
-//     (usa try/catch: la app debe seguir funcionando)
-// ============================================================
 function cargarGastos() {
-  // Tu código aquí
+
+  const texto = localStorage.getItem(CLAVE_GASTOS);
+  if (texto === null) {
+    gastos = [];
+    return;
+  }
+  try {
+    gastos = JSON.parse(texto);
+  } catch (error) {
+    console.warn("Datos dañados, empiezo con la lista vacía");
+    gastos = [];
+  }
 }
 
-// ============================================================
-// Ejercicio 03 · crearGasto(descripcion, monto, categoria)
-// ============================================================
-// Retorna un objeto con esta forma:
-//   { descripcion: "Café", monto: 5000, categoria: "Comida", fecha: "2026-10-22T13:05:00.000Z" }
-// - descripcion va sin espacios al inicio ni al final (trim)
-// - fecha la genera tu código: new Date().toISOString()
-// Retorna null si la descripción queda vacía, o si el monto no es
-// un número mayor que 0 (ojo: Number("abc") da NaN).
-// ============================================================
 function crearGasto(descripcion, monto, categoria) {
-  // Tu código aquí
+  const limpia = descripcion.trim();
+  if (limpia === "") return null;
+  if (Number.isNaN(monto) || monto <= 0) return null;
+
+  return {
+    descripcion: limpia,
+    monto: monto,
+    categoria: categoria,
+    fecha: new Date().toISOString()
+  };
+
 }
 
-// ============================================================
-// Ejercicio 04 · agregarGasto(): cambiar, guardar, pintar
-// ============================================================
-// Se ejecuta al hacer clic en "Agregar gasto" (la conexión ya está
-// escrita abajo). En orden:
-//   1. crea el gasto con crearGasto(...) usando lo escrito en el
-//      formulario (el monto llega como texto: conviértelo con Number)
-//   2. si es null, no hagas nada más (return)
-//   3. agrégalo a gastos y limpia la descripción y el monto
-//   4. guárdalo (Ejercicio 01) y vuelve a pintar todo: actualizarTodo()
-// ============================================================
 function agregarGasto() {
-  // Tu código aquí
+
+  const gasto = crearGasto(
+    inputDescripcion.value,
+    Number(inputMonto.value),
+    selectCategoria.value
+  );
+  if (gasto === null) return;
+
+  gastos.push(gasto);
+  inputDescripcion.value = "";
+  inputMonto.value = "";
+  guardarGastos();
+  actualizarTodo();
 }
 
-// ============================================================
-// Ejercicio 05 · esDeHoy(gasto) y esDeEsteMes(gasto)
-// ============================================================
-// gasto.fecha es TEXTO: reconstruye la fecha con new Date(gasto.fecha).
-// - esDeHoy → true si coinciden día, mes y año con hoy
-// - esDeEsteMes → true si coinciden mes y año con hoy
-// No compares el texto completo: la hora casi nunca es la misma.
-// ============================================================
 function esDeHoy(gasto) {
-  // Tu código aquí
+
+  const fechaGasto = new Date(gasto.fecha);
+  const hoy = new Date();
+  return fechaGasto.getDate() === hoy.getDate() &&
+    fechaGasto.getMonth() === hoy.getMonth() &&
+    fechaGasto.getFullYear() === hoy.getFullYear();
 }
 
 function esDeEsteMes(gasto) {
-  // Tu código aquí
+  const fechaGasto = new Date(gasto.fecha);
+  const hoy = new Date();
+  return fechaGasto.getMonth() === hoy.getMonth() &&
+    fechaGasto.getFullYear() === hoy.getFullYear();
 }
 
-// ============================================================
-// Ejercicio 06 · sumarMontos(lista) y mostrarTotales()
-// ============================================================
-// - sumarMontos: suma los montos de la lista con .reduce() (empieza en 0)
-// - mostrarTotales: escribe en totalHoy y totalMes el total de los
-//   gastos de hoy y del mes, con formatearPesos. Reutiliza esDeHoy,
-//   esDeEsteMes (con .filter) y sumarMontos.
-// ============================================================
+
 function sumarMontos(lista) {
-  // Tu código aquí
+  return lista.reduce(function (acumulado, gasto) {
+    return acumulado + gasto.monto;
+  }, 0);
+
 }
 
 function mostrarTotales() {
-  // Tu código aquí
+
+  const deHoy = gastos.filter(esDeHoy);
+  const delMes = gastos.filter(esDeEsteMes);
+  totalHoy.textContent = formatearPesos(sumarMontos(deHoy));
+  totalMes.textContent = formatearPesos(sumarMontos(delMes));
+
 }
 
-// ============================================================
-// Ejercicio 07 · mostrarCategorias()
-// ============================================================
-// Vacía listaCategorias y, recorriendo CATEGORIAS, crea un <li> por
-// categoría con este texto exacto:   Comida: $23.000
-// Las 5 categorías siempre aparecen, aunque su total sea $0.
-// ============================================================
 function mostrarCategorias() {
-  // Tu código aquí
+
+  listaCategorias.innerHTML = "";
+  for (const categoria of CATEGORIAS) {
+    const deEsaCategoria = gastos.filter(function (gasto) {
+      return gasto.categoria === categoria;
+    });
+    const li = document.createElement("li");
+    li.textContent = categoria + ": " + formatearPesos(sumarMontos(deEsaCategoria));
+    listaCategorias.appendChild(li);
+  }
 }
 
-// ============================================================
-// Ejercicio 08 · mostrarLista()
-// ============================================================
-// Vacía listaGastos y crea un <li> por cada gasto del arreglo:
-//   <li>Café - $5.000 (Comida)<button class="eliminar" data-index="0">Eliminar</button></li>
-// data-index es la posición del gasto en el arreglo gastos.
-// (En el Ejercicio 10 vuelves aquí para agregar el filtro.)
-// ============================================================
 function mostrarLista() {
-  // Tu código aquí
+
+  listaGastos.innerHTML = "";
+  for (let i = 0; i < gastos.length; i++) {
+    const gasto = gastos[i];
+
+    if (filtroActual !== "Todas" && gasto.categoria !== filtroActual) continue;
+
+    const li = document.createElement("li");
+    li.textContent = gasto.descripcion + " - " + formatearPesos(gasto.monto) + " (" + gasto.categoria + ")";
+    const boton = document.createElement("button");
+    boton.classList.add("eliminar");
+    boton.textContent = "Eliminar";
+    boton.dataset.index = i;
+
+    li.appendChild(boton);
+    listaGastos.appendChild(li);
+  }
 }
 
-// ============================================================
-// Ejercicio 09 · eliminarGasto(evento): UN escuchador en la lista
-// ============================================================
-// La conexión ya está escrita abajo (en la lista, no en cada botón).
-// - si el clic NO fue en un botón con la clase "eliminar" → return
-// - lee la posición con evento.target.dataset.index (llega como texto)
-// - sácalo del arreglo con splice, guarda y vuelve a pintar TODO
-// ============================================================
 function eliminarGasto(evento) {
-  // Tu código aquí
+
+  if (!evento.target.classList.contains("eliminar")) return;
+
+  const posicion = Number(evento.target.dataset.index);
+  gastos.splice(posicion, 1);
+  guardarGastos();
+  actualizarTodo();
 }
 
-// ============================================================
-// Ejercicio 10 · El filtro se recuerda solo en esta pestaña
-// ============================================================
-// - cambiarFiltro: guarda filtroLista.value en filtroActual y en
-//   sessionStorage (clave CLAVE_FILTRO) y vuelve a pintar la lista
-// - cargarFiltro: lee el filtro de sessionStorage (si no hay → "Todas"),
-//   lo pone en filtroActual y en filtroLista.value
-// - en mostrarLista: si filtroActual no es "Todas", sáltate los gastos
-//   de otras categorías (data-index sigue siendo la posición en gastos)
-// ============================================================
 function cambiarFiltro() {
-  // Tu código aquí
+
+  filtroActual = filtroLista.value;
+  sessionStorage.setItem(CLAVE_FILTRO, filtroActual);
+  mostrarLista();
+
 }
 
 function cargarFiltro() {
-  // Tu código aquí
+  const guardado = sessionStorage.getItem(CLAVE_FILTRO);
+  filtroActual = guardado === null ? "Todas" : guardado;
+  filtroLista.value = filtroActual;
 }
 
 // ===== Pintar todo (ya viene lista) =====
