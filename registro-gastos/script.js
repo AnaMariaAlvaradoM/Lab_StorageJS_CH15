@@ -21,6 +21,7 @@ const CATEGORIAS = [
   "Otros",
 ];
 
+
 let gastos = [];
 let filtroActual = "Todas";
 
@@ -235,7 +236,28 @@ function mostrarCategorias() {
 // (En el Ejercicio 10 vuelves aquí para agregar el filtro.)
 // ============================================================
 function mostrarLista() {
-  // Tu código aquí
+  listaGastos.innerHTML = "";
+
+  for (let i = 0; i < gastos.length; i++) {
+    const gasto = gastos[i];
+
+    if (filtroActual !== "Todas" && gasto.categoria !== filtroActual) {
+      continue;
+    }
+
+    const texto = gasto.descripcion + " - $" + gasto.monto + " (" + gasto.categoria + ")";
+
+    const li = document.createElement("li");
+    li.textContent = texto;
+
+    const boton = document.createElement("button");
+    boton.className = "eliminar";
+    boton.textContent = "Eliminar";
+    boton.dataset.index = i;
+
+    li.appendChild(boton);
+    listaGastos.appendChild(li);
+  }
 }
 
 // ============================================================
@@ -247,7 +269,15 @@ function mostrarLista() {
 // - sácalo del arreglo con splice, guarda y vuelve a pintar TODO
 // ============================================================
 function eliminarGasto(evento) {
-  // Tu código aquí
+  if (!evento.target.classList.contains("eliminar")) {
+    return;
+  }
+
+  const indice = Number(evento.target.dataset.index);
+  gastos.splice(indice, 1);
+
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -261,11 +291,19 @@ function eliminarGasto(evento) {
 //   de otras categorías (data-index sigue siendo la posición en gastos)
 // ============================================================
 function cambiarFiltro() {
-  // Tu código aquí
+  filtroActual = filtroLista.value;
+  sessionStorage.setItem(CLAVE_FILTRO, filtroActual);
+  actualizarTodo();
 }
 
 function cargarFiltro() {
-  // Tu código aquí
+  const guardado = sessionStorage.getItem(CLAVE_FILTRO);
+  if (guardado === null) {
+    filtroActual = "Todas";
+  } else {
+    filtroActual = guardado;
+  }
+  filtroLista.value = filtroActual;
 }
 
 // ===== Pintar todo (ya viene lista) =====
