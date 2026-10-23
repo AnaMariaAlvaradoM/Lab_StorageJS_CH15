@@ -13,7 +13,13 @@
 // ===== Datos (ya vienen listos, no los borres) =====
 const CLAVE_GASTOS = "registro-gastos";
 const CLAVE_FILTRO = "registro-gastos-filtro";
-const CATEGORIAS = ["Comida", "Transporte", "Entretenimiento", "Servicios", "Otros"];
+const CATEGORIAS = [
+  "Comida",
+  "Transporte",
+  "Entretenimiento",
+  "Servicios",
+  "Otros",
+];
 
 let gastos = [];
 let filtroActual = "Todas";
@@ -42,7 +48,7 @@ function formatearPesos(valor) {
 // → empaca el arreglo con JSON.stringify.
 // ============================================================
 function guardarGastos() {
-  // Tu código aquí
+  localStorage.setItem(CLAVE_GASTOS, JSON.stringify(gastos));
 }
 
 // ============================================================
@@ -55,7 +61,17 @@ function guardarGastos() {
 //     (usa try/catch: la app debe seguir funcionando)
 // ============================================================
 function cargarGastos() {
-  // Tu código aquí
+  const texto = localStorage.getItem(CLAVE_GASTOS);
+
+  if (texto === null) {
+    gastos = [];
+    return;
+  }
+  try {
+    gastos = JSON.parse(texto);
+  } catch {
+    gastos = [];
+  }
 }
 
 // ============================================================
@@ -69,8 +85,31 @@ function cargarGastos() {
 // un número mayor que 0 (ojo: Number("abc") da NaN).
 // ============================================================
 function crearGasto(descripcion, monto, categoria) {
-  // Tu código aquí
+  const desc = descripcion.trim();
+
+  if (desc === "") {
+    return null;
+  }
+
+  const MontoValido = !Number.isNaN(monto) && monto > 0;
+
+  if (!MontoValido) {
+    return null;
+  }
+
+  const fechaHoy = new Date();
+  const fechaTxt = fechaHoy.toISOString();
+
+  const gasto = {
+    descripcion: desc,
+    monto: monto,
+    categoria: categoria,
+    fecha: fechaTxt,
+  };
+
+  return gasto;
 }
+
 
 // ============================================================
 // Ejercicio 04 · agregarGasto(): cambiar, guardar, pintar
@@ -84,7 +123,23 @@ function crearGasto(descripcion, monto, categoria) {
 //   4. guárdalo (Ejercicio 01) y vuelve a pintar todo: actualizarTodo()
 // ============================================================
 function agregarGasto() {
-  // Tu código aquí
+  const desc = inputDescripcion.value;
+  const monto = Number(inputMonto.value);
+  const cat = selectCategoria.value;
+
+  const gasto = crearGasto(desc, monto, cat);
+
+  if (gasto === null) {
+    return;
+  }
+
+  gastos.push(gasto);
+
+  inputDescripcion.value = "";
+  inputMonto.value = "";
+
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -96,11 +151,24 @@ function agregarGasto() {
 // No compares el texto completo: la hora casi nunca es la misma.
 // ============================================================
 function esDeHoy(gasto) {
-  // Tu código aquí
+  const fechaGasto = new Date(gasto.fecha);
+  const hoy = new Date();
+
+  const mismoDia = fechaGasto.getDate() === hoy.getDate();
+  const mismoMes = fechaGasto.getMonth() === hoy.getMonth();
+  const mismoAnio = fechaGasto.getFullYear() === hoy.getFullYear();
+
+  return mismoDia && mismoMes && mismoAnio;
 }
 
 function esDeEsteMes(gasto) {
-  // Tu código aquí
+  const fechaGasto = new Date(gasto.fecha);
+  const hoy = new Date();
+
+  const mismoMes = fechaGasto.getMonth() === hoy.getMonth();
+  const mismoAnio = fechaGasto.getFullYear() === hoy.getFullYear();
+
+  return mismoMes && mismoAnio;
 }
 
 // ============================================================
@@ -112,11 +180,23 @@ function esDeEsteMes(gasto) {
 //   esDeEsteMes (con .filter) y sumarMontos.
 // ============================================================
 function sumarMontos(lista) {
-  // Tu código aquí
+  const suma = lista.reduce(function (acumulado, gasto) {
+    return acumulado + gasto.monto;
+  }, 0);
+
+  return suma;
+
 }
 
 function mostrarTotales() {
-  // Tu código aquí
+  const listaHoy = gastos.filter(esDeHoy);
+  const listaMes = gastos.filter(esDeEsteMes);
+
+  const sumaHoy = sumarMontos(listaHoy);
+  const sumaMes = sumarMontos(listaMes);
+
+  totalHoy.textContent = formatearPesos(sumaHoy);
+  totalMes.textContent = formatearPesos(sumaMes);
 }
 
 // ============================================================
@@ -127,7 +207,23 @@ function mostrarTotales() {
 // Las 5 categorías siempre aparecen, aunque su total sea $0.
 // ============================================================
 function mostrarCategorias() {
-  // Tu código aquí
+  listaCategorias.innerHTML = "";
+
+  for (let i = 0; i < CATEGORIAS.length; i++) {
+    const categoria = CATEGORIAS[i];
+
+    const gastosDeCategoria = gastos.filter(function (gasto) {
+      return gasto.categoria === categoria;
+    });
+
+    const total = sumarMontos(gastosDeCategoria);
+    const textoTotal = formatearPesos(total);
+
+    const li = document.createElement("li");
+    li.textContent = categoria + ": " + textoTotal;
+
+    listaCategorias.appendChild(li);
+  }
 }
 
 // ============================================================
