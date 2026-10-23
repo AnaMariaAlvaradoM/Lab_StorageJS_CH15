@@ -56,7 +56,19 @@ function guardarGastos() {
 //     (usa try/catch: la app debe seguir funcionando)
 // ============================================================
 function cargarGastos() {
-  // Tu código aquí
+  const texto = localStorage.getItem(CLAVE_GASTOS);
+
+  if (texto === null) {
+    gastos = [];
+    return;
+  }
+
+  try {
+    gastos = JSON.parse(texto);
+  } catch (error) {
+    gastos = [];
+    console.warn("Los datos guardados estaban dañados. La lista empieza vacía.");
+  }
 }
 
 // ============================================================
