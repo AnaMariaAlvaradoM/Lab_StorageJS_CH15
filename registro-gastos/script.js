@@ -43,6 +43,7 @@ function formatearPesos(valor) {
 // ============================================================
 function guardarGastos() {
   // Tu código aquí
+  localStorage.setItem(CLAVE_GASTOS, JSON.stringify(gastos))
 }
 
 // ============================================================
@@ -56,6 +57,18 @@ function guardarGastos() {
 // ============================================================
 function cargarGastos() {
   // Tu código aquí
+  const texto = localStorage.getItem(CLAVE_GASTOS);
+  if(texto === null){
+    gastos = [];
+    return;
+  }
+
+  try{
+    gastos = JSON.parse(texto);
+  } catch(error){
+    gastos = [];
+    console.warn("Ocurrio un error");
+  };
 }
 
 // ============================================================
@@ -70,6 +83,17 @@ function cargarGastos() {
 // ============================================================
 function crearGasto(descripcion, monto, categoria) {
   // Tu código aquí
+  const descripcionGasto = descripcion.trim();
+
+  if(descripcionGasto === "" || Number.isNaN(monto) || monto <= 0){
+    return null
+  }
+  return {
+    descripcion: descripcionGasto,
+    monto: monto,
+    categoria: categoria,
+    fecha: new Date().toISOString()
+  };
 }
 
 // ============================================================
@@ -85,6 +109,17 @@ function crearGasto(descripcion, monto, categoria) {
 // ============================================================
 function agregarGasto() {
   // Tu código aquí
+  const nuevoGasto = crearGasto(inputDescripcion.value, Number(inputMonto.value), selectCategoria.value);
+  if(nuevoGasto === null){
+    return;
+  }
+  gastos.push(nuevoGasto);
+
+  inputDescripcion.value = "";
+  inputMonto.value = "";
+
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -97,10 +132,22 @@ function agregarGasto() {
 // ============================================================
 function esDeHoy(gasto) {
   // Tu código aquí
+  const fechaGasto = new Date(gasto.fecha);
+  const fechaHoy = new Date();
+  if(fechaGasto.getDate() === fechaHoy.getDate() && fechaGasto.getMonth() === fechaHoy.getMonth() && fechaGasto.getFullYear() === fechaHoy.getFullYear()){
+    return true;
+  }
+  return false;
 }
 
 function esDeEsteMes(gasto) {
   // Tu código aquí
+  const fechaGasto = new Date(gasto.fecha);
+  const fechaHoy = new Date();
+  if(fechaGasto.getMonth() === fechaHoy.getMonth() && fechaGasto.getFullYear() === fechaHoy.getFullYear()){
+    return true;
+  }
+  return false;
 }
 
 // ============================================================
@@ -113,10 +160,23 @@ function esDeEsteMes(gasto) {
 // ============================================================
 function sumarMontos(lista) {
   // Tu código aquí
+  const total = lista.reduce(function (acumulado, gasto) {
+    return acumulado + gasto.monto;
+  }, 0);
+
+  return total;
 }
 
 function mostrarTotales() {
   // Tu código aquí
+  const gastosHoy = gastos.filter(esDeHoy);
+  const gastosMes = gastos.filter(esDeEsteMes);
+
+  const totalHoyMonto = sumarMontos(gastosHoy);
+  const totalMesMonto = sumarMontos(gastosMes);
+
+  totalHoy.textContent = formatearPesos(totalHoyMonto);
+  totalMes.textContent = formatearPesos(totalMesMonto);
 }
 
 // ============================================================
@@ -128,8 +188,17 @@ function mostrarTotales() {
 // ============================================================
 function mostrarCategorias() {
   // Tu código aquí
-}
+  listaCategorias.innerHTML = "";
 
+  for(let categoria of CATEGORIAS){
+    const gastosCategoria = gastos.filter(function (gasto) {return gasto.categoria === categoria;})
+    const totalCategoria = sumarMontos(gastosCategoria);
+    const li = document.createElement("li");
+
+    li.textContent = categoria + ": " + formatearPesos(totalCategoria);
+    listaCategorias.appendChild(li);
+  }
+}
 // ============================================================
 // Ejercicio 08 · mostrarLista()
 // ============================================================
@@ -140,6 +209,25 @@ function mostrarCategorias() {
 // ============================================================
 function mostrarLista() {
   // Tu código aquí
+  listaGastos.innerHTML = "";
+
+  for (let i = 0; i < gastos.length; i++) {
+    const gasto = gastos[i];
+    if (filtroActual !== "Todas" && gasto.categoria !== filtroActual) {
+      continue;
+    }
+    const li = document.createElement("li");
+    const boton = document.createElement("button");
+
+    li.textContent = `${gasto.descripcion} - ${formatearPesos(gasto.monto)} (${gasto.categoria})`;
+
+    boton.className = "eliminar";
+    boton.textContent = "Eliminar";
+    boton.dataset.index = i;
+
+    li.appendChild(boton);
+    listaGastos.appendChild(li);
+  }
 }
 
 // ============================================================
@@ -152,6 +240,15 @@ function mostrarLista() {
 // ============================================================
 function eliminarGasto(evento) {
   // Tu código aquí
+  if (evento.target.classList.contains("eliminar") === false) {
+    return;
+  }
+
+  const posicion = Number(evento.target.dataset.index);
+  gastos.splice(posicion, 1);
+
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -166,10 +263,21 @@ function eliminarGasto(evento) {
 // ============================================================
 function cambiarFiltro() {
   // Tu código aquí
+  filtroActual = filtroLista.value;
+  sessionStorage.setItem(CLAVE_FILTRO, filtroActual);
+  mostrarLista();
 }
 
 function cargarFiltro() {
   // Tu código aquí
+  const filtroGuardado = sessionStorage.getItem(CLAVE_FILTRO)
+
+  if(filtroGuardado === null){
+    filtroActual = "Todas";
+  }else{
+    filtroActual = filtroGuardado;
+  }
+  filtroLista.value = filtroActual;
 }
 
 // ===== Pintar todo (ya viene lista) =====
