@@ -43,6 +43,8 @@ function formatearPesos(valor) {
 // ============================================================
 function guardarGastos() {
   // Tu código aquí
+  const textoJSON = JSON.stringify(gastos);
+  localStorage.setItem(CLAVE_GASTOS, textoJSON);
 }
 
 // ============================================================
@@ -56,6 +58,17 @@ function guardarGastos() {
 // ============================================================
 function cargarGastos() {
   // Tu código aquí
+  const texto = localStorage.getItem(CLAVE_GASTOS);
+  if (texto === null) {
+    gastos = [];
+    return;
+  }
+  try {
+    gastos = JSON.parse(texto);
+  } catch (error) {
+    gastos = [];
+    console.warn("Los datos de gastos estaban dañados, se inició con un arreglo vacío.");
+  }
 }
 
 // ============================================================
@@ -70,6 +83,18 @@ function cargarGastos() {
 // ============================================================
 function crearGasto(descripcion, monto, categoria) {
   // Tu código aquí
+  const descripcionLimpia = descripcion.trim();
+  
+  if (descripcionLimpia === "" || Number.isNaN(monto) || monto <= 0) {
+    return null;
+  }
+
+  return {
+    descripcion: descripcionLimpia,
+    monto: monto,
+    categoria: categoria,
+    fecha: new Date().toISOString()
+  };
 }
 
 // ============================================================
@@ -85,6 +110,22 @@ function crearGasto(descripcion, monto, categoria) {
 // ============================================================
 function agregarGasto() {
   // Tu código aquí
+  const nuevoGasto = crearGasto(
+    inputDescripcion.value,
+    Number(inputMonto.value),
+    selectCategoria.value
+  );
+
+  if (nuevoGasto === null) {
+    return;
+  }
+
+  gastos.push(nuevoGasto);
+  inputDescripcion.value = "";
+  inputMonto.value = "";
+
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -96,11 +137,25 @@ function agregarGasto() {
 // No compares el texto completo: la hora casi nunca es la misma.
 // ============================================================
 function esDeHoy(gasto) {
-  // Tu código aquí
+  const fechaGasto = new Date(gasto.fecha);
+  const hoy = new Date();
+
+  return (
+    fechaGasto.getDate() === hoy.getDate() &&
+    fechaGasto.getMonth() === hoy.getMonth() &&
+    fechaGasto.getFullYear() === hoy.getFullYear()
+  );
 }
 
 function esDeEsteMes(gasto) {
   // Tu código aquí
+  const fechaGasto = new Date(gasto.fecha);
+  const hoy = new Date();
+
+  return (
+    fechaGasto.getMonth() === hoy.getMonth() &&
+    fechaGasto.getFullYear() === hoy.getFullYear()
+  );
 }
 
 // ============================================================
@@ -113,10 +168,19 @@ function esDeEsteMes(gasto) {
 // ============================================================
 function sumarMontos(lista) {
   // Tu código aquí
+  return lista.reduce((acumulado, gasto) => acumulado + gasto.monto, 0);
 }
 
 function mostrarTotales() {
   // Tu código aquí
+  const gastosDeHoy = gastos.filter(esDeHoy);
+  const gastosDelMes = gastos.filter(esDeEsteMes);
+
+  const sumaHoy = sumarMontos(gastosDeHoy);
+  const sumaMes = sumarMontos(gastosDelMes);
+
+  totalHoy.textContent = formatearPesos(sumaHoy);
+  totalMes.textContent = formatearPesos(sumaMes);
 }
 
 // ============================================================
@@ -128,6 +192,17 @@ function mostrarTotales() {
 // ============================================================
 function mostrarCategorias() {
   // Tu código aquí
+  listaCategorias.innerHTML = "";
+
+  for (let i = 0; i < CATEGORIAS.length; i++) {
+    const categoria = CATEGORIAS[i];
+    const gastosDeCategoria = gastos.filter(g => g.categoria === categoria);
+    const totalCategoria = sumarMontos(gastosDeCategoria);
+
+    const li = document.createElement("li");
+    li.textContent = `${categoria}: ${formatearPesos(totalCategoria)}`;
+    listaCategorias.appendChild(li);
+  }
 }
 
 // ============================================================
@@ -140,6 +215,26 @@ function mostrarCategorias() {
 // ============================================================
 function mostrarLista() {
   // Tu código aquí
+  listaGastos.innerHTML = "";
+
+  for (let i = 0; i < gastos.length; i++) {
+    const gasto = gastos[i];
+
+    if (filtroActual !== "Todas" && gasto.categoria !== filtroActual) {
+      continue;
+    }
+
+    const li = document.createElement("li");
+    li.textContent = `${gasto.descripcion} - ${formatearPesos(gasto.monto)} (${gasto.categoria})`;
+
+    const botonEliminar = document.createElement("button");
+    botonEliminar.className = "eliminar";
+    botonEliminar.textContent = "Eliminar";
+    botonEliminar.dataset.index = i;
+
+    li.appendChild(botonEliminar);
+    listaGastos.appendChild(li);
+  }
 }
 
 // ============================================================
@@ -152,6 +247,15 @@ function mostrarLista() {
 // ============================================================
 function eliminarGasto(evento) {
   // Tu código aquí
+  if (!evento.target.classList.contains("eliminar")) {
+    return;
+  }
+
+  const posicion = Number(evento.target.dataset.index);
+  gastos.splice(posicion, 1);
+
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -166,10 +270,21 @@ function eliminarGasto(evento) {
 // ============================================================
 function cambiarFiltro() {
   // Tu código aquí
+  filtroActual = filtroLista.value;
+  sessionStorage.setItem(CLAVE_FILTRO, filtroActual);
+  mostrarLista();
 }
 
 function cargarFiltro() {
   // Tu código aquí
+  const filtroGuardado = sessionStorage.getItem(CLAVE_FILTRO);
+  if (filtroGuardado !== null) {
+    filtroActual = filtroGuardado;
+    filtroLista.value = filtroGuardado;
+  } else {
+    filtroActual = "Todas";
+    filtroLista.value = "Todas";
+  }
 }
 
 // ===== Pintar todo (ya viene lista) =====
