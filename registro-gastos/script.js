@@ -42,9 +42,13 @@ function formatearPesos(valor) {
 // → empaca el arreglo con JSON.stringify.
 // ============================================================
 function guardarGastos() {
-  // Tu código aquí
-}
 
+localStorage.setItem(
+                    CLAVE_GASTOS,
+                    JSON.stringify(gastos)
+                    ); 
+
+}
 // ============================================================
 // Ejercicio 02 · cargarGastos(): leer sin que un dato roto tumbe la app
 // ============================================================
@@ -55,9 +59,23 @@ function guardarGastos() {
 //     (usa try/catch: la app debe seguir funcionando)
 // ============================================================
 function cargarGastos() {
-  // Tu código aquí
-}
 
+  
+const textoGuardado = localStorage.getItem(CLAVE_GASTOS);   
+        
+        if  ( textoGuardado === null) {
+             gastos = [];  
+             return;
+            }
+
+        try {
+             gastos = JSON.parse(textoGuardado);
+            }
+
+        catch {
+               gastos =[];
+              }
+}
 // ============================================================
 // Ejercicio 03 · crearGasto(descripcion, monto, categoria)
 // ============================================================
@@ -69,7 +87,26 @@ function cargarGastos() {
 // un número mayor que 0 (ojo: Number("abc") da NaN).
 // ============================================================
 function crearGasto(descripcion, monto, categoria) {
-  // Tu código aquí
+  
+    descripcion = descripcion.trim ();
+
+          if (descripcion === "") {
+             return  null;
+             }
+
+          if (Number.isNaN(monto) || monto <= 0) {
+             return null;
+             }
+
+const gasto = {
+                descripcion : descripcion,
+                monto : monto,
+                categoria : categoria,
+                fecha : new Date().toISOString()
+              };
+               
+              return gasto;
+
 }
 
 // ============================================================
@@ -84,9 +121,26 @@ function crearGasto(descripcion, monto, categoria) {
 //   4. guárdalo (Ejercicio 01) y vuelve a pintar todo: actualizarTodo()
 // ============================================================
 function agregarGasto() {
-  // Tu código aquí
-}
 
+      const gasto = crearGasto (
+                                inputDescripcion.value,
+                                    Number(inputMonto.value),
+                                    selectCategoria.value
+                               );
+
+            if (gasto === null) {
+                return;
+            }
+ 
+      gastos.push(gasto);
+      
+      inputDescripcion.value = "";
+      inputMonto.value = "";
+
+guardarGastos();
+actualizarTodo();
+
+}
 // ============================================================
 // Ejercicio 05 · esDeHoy(gasto) y esDeEsteMes(gasto)
 // ============================================================
@@ -96,13 +150,28 @@ function agregarGasto() {
 // No compares el texto completo: la hora casi nunca es la misma.
 // ============================================================
 function esDeHoy(gasto) {
-  // Tu código aquí
+  
+     const fechaGasto = new Date (gasto.fecha);
+     const hoy        = new Date ();   
+
+     return (
+              fechaGasto.getDate() === hoy.getDate() &&
+              fechaGasto.getMonth() === hoy.getMonth() &&
+              fechaGasto.getFullYear() === hoy.getFullYear()
+            );
+
 }
 
 function esDeEsteMes(gasto) {
-  // Tu código aquí
-}
 
+     const fechaGasto = new Date (gasto.fecha);
+     const hoy        = new Date ();  
+
+      return (
+              fechaGasto.getMonth() === hoy.getMonth() &&
+              fechaGasto.getFullYear() === hoy.getFullYear()
+             );
+}
 // ============================================================
 // Ejercicio 06 · sumarMontos(lista) y mostrarTotales()
 // ============================================================
