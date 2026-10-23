@@ -208,6 +208,24 @@ function mostrarCategorias() {
 // ============================================================
 function mostrarLista() {
   // Tu código aquí
+  listaGastos.innerHTML = "";
+  for (let i = 0; i < gastos.length; i++) {
+    const gasto = gastos[i];
+    if (filtroActual !== "Todas" && gasto.categoria !== filtroActual) {
+      continue;
+    }
+
+    const li = document.createElement("li");
+    li.textContent = `${gasto.descripcion} - ${formatearPesos(gasto.monto)} (${gasto.categoria})`;
+
+    const boton = document.createElement("button");
+    boton.className = "eliminar";
+    boton.textContent = "Eliminar";
+    boton.dataset.index = i;
+
+    li.appendChild(boton);
+    listaGastos.appendChild(li);
+  }
 }
 
 // ============================================================
@@ -220,6 +238,14 @@ function mostrarLista() {
 // ============================================================
 function eliminarGasto(evento) {
   // Tu código aquí
+  if (!evento.target.classList.contains("eliminar")) {
+    return;
+  }
+  const posicion = Number(evento.target.dataset.index);
+  gastos.splice(posicion, 1);
+
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -234,10 +260,23 @@ function eliminarGasto(evento) {
 // ============================================================
 function cambiarFiltro() {
   // Tu código aquí
+  filtroActual = filtroLista.value;
+  sessionStorage.setItem(CLAVE_FILTRO, filtroActual);
+
+  mostrarLista();
 }
 
 function cargarFiltro() {
   // Tu código aquí
+  const filtroGuardado = sessionStorage.getItem(CLAVE_FILTRO);
+
+  if (filtroGuardado !== null) {
+    filtroActual = filtroGuardado;
+    filtroLista.value = filtroGuardado;
+  } else {
+    filtroActual = "Todas";
+    filtroLista.value = "Todas";
+  }
 }
 
 // ===== Pintar todo (ya viene lista) =====
