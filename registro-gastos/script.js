@@ -207,9 +207,21 @@ function mostrarCategorias() {
 // (En el Ejercicio 10 vuelves aquí para agregar el filtro.)
 // ============================================================
 function mostrarLista() {
-  // Tu código aquí
-}
+  listaGastos.innerHTML = ""
 
+  gastos.forEach((gasto, index) => {
+    let li = document.createElement("li")
+    li.textContent = `${gasto.descripcion} - ${formatearPesos(gasto.monto)} (${gasto.categoria})`
+
+    let boton = document.createElement("button")
+    boton.className = "eliminar"
+    boton.dataset.index = index
+    boton.textContent = "Eliminar"
+
+    li.appendChild(boton)
+    listaGastos.appendChild(li)
+  })
+}
 // ============================================================
 // Ejercicio 09 · eliminarGasto(evento): UN escuchador en la lista
 // ============================================================
