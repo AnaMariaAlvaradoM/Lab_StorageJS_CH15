@@ -234,9 +234,16 @@ function mostrarLista() {
 // - sácalo del arreglo con splice, guarda y vuelve a pintar TODO
 // ============================================================
 function eliminarGasto(evento) {
-  // Tu código aquí
-}
+  if (!evento.target.classList.contains("eliminar")) {
+    return;
+  }
 
+  const posicion = Number(evento.target.dataset.index);
+  gastos.splice(posicion, 1);
+
+  guardarGastos();
+  actualizarTodo();
+}
 // ============================================================
 // Ejercicio 10 · El filtro se recuerda solo en esta pestaña
 // ============================================================
