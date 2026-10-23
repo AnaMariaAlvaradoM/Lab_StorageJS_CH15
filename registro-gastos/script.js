@@ -203,7 +203,26 @@ function mostrarCategorias() {
 // (En el Ejercicio 10 vuelves aquí para agregar el filtro.)
 // ============================================================
 function mostrarLista() {
-  // Tu código aquí
+  listaGastos.innerHTML = "";
+
+  for (let i = 0; i < gastos.length; i++) {
+    const gasto = gastos[i];
+    
+    if (filtroActual !== "Todas" && gasto.categoria !== filtroActual) {
+      continue;
+    }
+
+    const li = document.createElement("li");
+    li.textContent = gasto.descripcion + " - " + formatearPesos(gasto.monto) + " (" + gasto.categoria + ")";
+
+    const boton = document.createElement("button");
+    boton.className = "eliminar";
+    boton.textContent = "Eliminar";
+    boton.dataset.index = i; 
+
+    li.appendChild(boton);
+    listaGastos.appendChild(li);
+  }
 }
 
 // ============================================================
