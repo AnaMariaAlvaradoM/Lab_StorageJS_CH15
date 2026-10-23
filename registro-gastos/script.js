@@ -42,7 +42,10 @@ function formatearPesos(valor) {
 // → empaca el arreglo con JSON.stringify.
 // ============================================================
 function guardarGastos() {
-  // Tu código aquí
+    // la variable gastosjson va a usar el json con (gastos) para trasformarlo en un archivo json leible por el localstorage
+    //enviar a el navegador JSON.stringify() transforma cualquier estructura de JavaScript (como [{ descripcion: "Café", monto: 5000 }]) en un texto legible de la forma '[{"descripcion":"Café","monto":5000}]', listo para ser almacenado.
+    gastosjson = JSON.stringify(gastos);
+    localStorage.setItem(CLAVE_GASTOS, gastosjson);
 }
 
 // ============================================================
@@ -55,7 +58,17 @@ function guardarGastos() {
 //     (usa try/catch: la app debe seguir funcionando)
 // ============================================================
 function cargarGastos() {
-  // Tu código aquí
+  const traer = localStorage.getItem(CLAVE_GASTOS)
+  // gastos = JSON.parse(traer); lo contrario a stringify convierte el texto '[{"descripcion":"Café","monto":5000}]' a javascript [{ descripcion: "Café", monto: 5000 }]
+  // leer en pocas palabras lo que hay en el navegador
+  if(traer === null){
+      gastos = [];
+      return;
+  }try{
+    gastos = JSON.parse(traer);
+  }catch(error) {
+      gastos = [];
+  }
 }
 
 // ============================================================
@@ -69,7 +82,17 @@ function cargarGastos() {
 // un número mayor que 0 (ojo: Number("abc") da NaN).
 // ============================================================
 function crearGasto(descripcion, monto, categoria) {
-  // Tu código aquí
+const DESC = descripcion.trim();
+
+  if (DESC === "" || isNaN(monto) || monto <= 0) {
+    return null; 
+  }
+  return {
+    descripcion: DESC,
+    monto: Number(monto),
+    categoria: categoria,
+    fecha: new Date().toISOString()
+  };
 }
 
 // ============================================================
@@ -84,7 +107,22 @@ function crearGasto(descripcion, monto, categoria) {
 //   4. guárdalo (Ejercicio 01) y vuelve a pintar todo: actualizarTodo()
 // ============================================================
 function agregarGasto() {
-  // Tu código aquí
+  const nuevoGasto = crearGasto(
+    inputDescripcion.value,
+    Number(inputMonto.value),
+    selectCategoria.value
+  );
+  // 2. Si los datos estaban mal (crearGasto devolvió null), detenemos la función aquí
+  if (nuevoGasto === null) {
+    return;
+  }
+  // 3. Guardamos el gasto en nuestro arreglo de la memoria y limpiamos los campos
+  gastos.push(nuevoGasto);
+  inputDescripcion.value = "";
+  inputMonto.value = "";
+  // 4. Persistimos los cambios en el navegador y redibujamos la pantalla
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -96,12 +134,27 @@ function agregarGasto() {
 // No compares el texto completo: la hora casi nunca es la misma.
 // ============================================================
 function esDeHoy(gasto) {
-  // Tu código aquí
+  const hoy = new Date(); //fecha y hora de este instante
+  const fechaGasto = new Date(gasto.fecha); // Reconstruimos la fecha guardada en el gasto
+  // Para ser de HOY, deben coincidir día, mes Y año
+  return (
+    fechaGasto.getDate() === hoy.getDate() &&
+    fechaGasto.getMonth() === hoy.getMonth() &&
+    fechaGasto.getFullYear() === hoy.getFullYear()
+  );
 }
 
 function esDeEsteMes(gasto) {
-  // Tu código aquí
+  const hoy = new Date();
+  const fechaGasto = new Date(gasto.fecha);
+
+  // Para ser de ESTE MES, solo deben coincidir el mes Y el año
+  return (
+    fechaGasto.getMonth() === hoy.getMonth() &&
+    fechaGasto.getFullYear() === hoy.getFullYear()
+  );
 }
+
 
 // ============================================================
 // Ejercicio 06 · sumarMontos(lista) y mostrarTotales()
@@ -112,11 +165,25 @@ function esDeEsteMes(gasto) {
 //   esDeEsteMes (con .filter) y sumarMontos.
 // ============================================================
 function sumarMontos(lista) {
-  // Tu código aquí
+  // .reduce recibe una función con dos variables:
+  // - acumulado: la suma guardada hasta el momento (empieza en 0)
+  // - gasto: el elemento de la lista que se está procesando
+  return lista.reduce((acumulado, gasto) => 
+    acumulado + gasto.monto, 0);
 }
 
 function mostrarTotales() {
-  // Tu código aquí
+  // 1. Obtener gastos de hoy con .filter() y calcular su total
+  const gastosDeHoy = gastos.filter(esDeHoy);
+  const sumaHoy = sumarMontos(gastosDeHoy);
+
+  // 2. Obtener gastos del mes con .filter() y calcular su total
+  const gastosDelMes = gastos.filter(esDeEsteMes);
+  const sumaMes = sumarMontos(gastosDelMes);
+
+  // 3. Convertir el número a dinero con formatearPesos y colocarlo en el HTML
+  totalHoy.textContent = formatearPesos(sumaHoy);
+  totalMes.textContent = formatearPesos(sumaMes);
 }
 
 // ============================================================
@@ -127,7 +194,21 @@ function mostrarTotales() {
 // Las 5 categorías siempre aparecen, aunque su total sea $0.
 // ============================================================
 function mostrarCategorias() {
-  // Tu código aquí
+  // 1. Limpiamos la lista en el HTML para no duplicar datos
+  listaCategorias.innerHTML = "";
+  // 2. Recorremos cada una de las 5 categorías fijas
+  CATEGORIAS.forEach(categoria => {
+    // 3. Filtramos los gastos que pertenecen a esta categoría
+    const gastosDeCategoria = gastos.filter(gasto => gasto.categoria === categoria);
+    // 4. Sumamos el total de esa categoría
+    const totalCategoria = sumarMontos(gastosDeCategoria);
+    // 5. Creamos una nueva etiqueta <li> en memoria
+    const li = document.createElement("li");
+    // 6. Asignamos el texto con el formato exacto requerido (Ej: "Comida: $23.000")
+    li.textContent = `${categoria}: ${formatearPesos(totalCategoria)}`;
+    // 7. Insertamos el <li> dentro del <ul>/<ol> del HTML
+    listaCategorias.appendChild(li);
+  });
 }
 
 // ============================================================
@@ -139,7 +220,19 @@ function mostrarCategorias() {
 // (En el Ejercicio 10 vuelves aquí para agregar el filtro.)
 // ============================================================
 function mostrarLista() {
-  // Tu código aquí
+  // 1. Limpiamos la lista
+  listaGastos.innerHTML = "";
+  // 2. Recorremos todos los gastos manteniendo su posición 'index' real
+  gastos.forEach((gasto, index) => {
+    // 3. Si hay un filtro aplicado y la categoría no coincide, pasamos al siguiente
+    if (filtroActual !== "Todas" && gasto.categoria !== filtroActual) {
+      return; // Dentro de un .forEach(), return actúa como un 'saltar al siguiente'
+    }
+    // 4. Si pasa el filtro, creamos y pintamos el elemento en el HTML
+    const li = document.createElement("li");
+    li.innerHTML = `${gasto.descripcion} - ${formatearPesos(gasto.monto)} (${gasto.categoria}) <button class="eliminar" data-index="${index}">Eliminar</button>`;
+    listaGastos.appendChild(li);
+  });
 }
 
 // ============================================================
@@ -151,7 +244,17 @@ function mostrarLista() {
 // - sácalo del arreglo con splice, guarda y vuelve a pintar TODO
 // ============================================================
 function eliminarGasto(evento) {
-  // Tu código aquí
+  // 1. Si el clic NO fue en un botón con la clase "eliminar", no hacemos nada
+  if (!evento.target.classList.contains("eliminar")) {
+    return;
+  }
+  // 2. Leemos la posición guardada en data-index
+  const indice = Number(evento.target.dataset.index);
+  // 3. Eliminamos 1 elemento del arreglo 'gastos' en la posición 'indice'
+  gastos.splice(indice, 1);
+  // 4. Persistimos los cambios en localStorage y redibujamos la pantalla
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -165,11 +268,25 @@ function eliminarGasto(evento) {
 //   de otras categorías (data-index sigue siendo la posición en gastos)
 // ============================================================
 function cambiarFiltro() {
-  // Tu código aquí
+  // 1. Leemos el valor seleccionado en el selector HTML
+  filtroActual = filtroLista.value;
+  // 2. Lo guardamos en sessionStorage para esta pestaña
+  sessionStorage.setItem(CLAVE_FILTRO, filtroActual);
+  // 3. Volvemos a pintar la lista filtrada
+  mostrarLista();
 }
 
 function cargarFiltro() {
-  // Tu código aquí
+  // 1. Leemos lo que había guardado en la memoria de la pestaña
+  const filtroGuardado = sessionStorage.getItem(CLAVE_FILTRO);
+  // 2. Si es null, asignamos "Todas"; de lo contrario, el valor guardado
+  if (filtroGuardado === null) {
+    filtroActual = "Todas";
+  } else {
+    filtroActual = filtroGuardado;
+  }
+  // 3. Sincronizamos el selector desplegable del HTML con el valor activo
+  filtroLista.value = filtroActual;
 }
 
 // ===== Pintar todo (ya viene lista) =====
