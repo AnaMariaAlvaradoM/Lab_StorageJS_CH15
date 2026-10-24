@@ -275,10 +275,8 @@ function cambiarFiltro() {
   // Tu código aquí
   filtroActual = filtroLista.value;
 
-  // Lo guardo en sessionStorage
   sessionStorage.setItem(CLAVE_FILTRO, filtroActual);
 
-  // Solo repinto la lista
   mostrarLista();
 }
 
