@@ -44,7 +44,10 @@ function formatearPesos(valor) {
 
 function guardarGastos() {
   // Tu código aquí
-  localStorage.setItem(CLAVE_GASTOS, JSON.stringify(gastos));
+
+  let texto = JSON.stringify(gastos);
+  localStorage.setItem(CLAVE_GASTOS, texto);
+
 }
 
 // ============================================================
@@ -58,15 +61,16 @@ function guardarGastos() {
 // ============================================================
 function cargarGastos() {
   // Tu código aquí
-  const texto = localStorage.getItem(CLAVE_GASTOS);
+  let texto = localStorage.getItem(CLAVE_GASTOS);
+
   if (texto === null) {
     gastos = [];
-    return
-  }
-  try {
-    gastos = JSON.parse(texto);
-  } catch (error) {
-    gastos = []
+  } else {
+    try {
+      gastos = JSON.parse(texto);
+    } catch (error) {
+      gastos = [];
+    }
   }
 }
 
@@ -212,8 +216,8 @@ function mostrarLista() {
 
   gastos.forEach((gasto, index) => {
 
-    
-    if (filtroActual !== "Todas" && gasto.categoria !== filtroActual) return;
+
+    if (filtroActual !== "Todas" && gasto.categoria !== filtroActual) return
 
     const li = document.createElement("li");
     li.textContent = `${gasto.descripcion} - ${formatearPesos(gasto.monto)} (${gasto.categoria})`;
@@ -223,8 +227,9 @@ function mostrarLista() {
     boton.dataset.index = index;
     boton.textContent = "Eliminar";
 
-    li.appendChild(boton);
-    listaGastos.appendChild(li);
+    li.appendChild(boton)
+
+    listaGastos.appendChild(li)
   });
 
   }
@@ -240,6 +245,20 @@ function mostrarLista() {
 // ============================================================
 function eliminarGasto(evento) {
   // Tu código aquí
+  let esBotonEliminar = evento.target.classList.contains("eliminar");
+
+  if (esBotonEliminar === false) {
+    return
+  }
+
+  let indexTexto = evento.target.dataset.index;
+  let index = Number(indexTexto);
+
+
+  gastos.splice(index, 1);
+
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -254,10 +273,26 @@ function eliminarGasto(evento) {
 // ============================================================
 function cambiarFiltro() {
   // Tu código aquí
+  filtroActual = filtroLista.value;
+
+  // Lo guardo en sessionStorage
+  sessionStorage.setItem(CLAVE_FILTRO, filtroActual);
+
+  // Solo repinto la lista
+  mostrarLista();
 }
 
 function cargarFiltro() {
   // Tu código aquí
+  let guardado = sessionStorage.getItem(CLAVE_FILTRO);
+
+  if (guardado === null) {
+    filtroActual = "Todas";
+  } else {
+    filtroActual = guardado;
+  }
+
+  filtroLista.value = filtroActual;
 }
 
 // ===== Pintar todo (ya viene lista) =====
