@@ -42,7 +42,7 @@ function formatearPesos(valor) {
 // → empaca el arreglo con JSON.stringify.
 // ============================================================
 function guardarGastos() {
-  // Tu código aquí
+ localStorage.setItem(CLAVE_GASTOS, JSON.stringify(gastos))
 }
 
 // ============================================================
@@ -55,7 +55,16 @@ function guardarGastos() {
 //     (usa try/catch: la app debe seguir funcionando)
 // ============================================================
 function cargarGastos() {
-  // Tu código aquí
+  let texto = localStorage.getItem(CLAVE_GASTOS);
+  if(texto === null){
+    gastos = []
+  }else {
+    try{
+      gastos = JSON.parse(texto)
+    }catch (error){
+      gastos = []
+    }
+  }
 }
 
 // ============================================================
@@ -69,7 +78,16 @@ function cargarGastos() {
 // un número mayor que 0 (ojo: Number("abc") da NaN).
 // ============================================================
 function crearGasto(descripcion, monto, categoria) {
-  // Tu código aquí
+  let limpiar = descripcion.trim();
+  if (limpiar === "" || Number(monto)<=0 || isNaN(Number(monto))){
+    return null;
+  }
+  return {
+    descripcion: limpiar,
+    monto: Number(monto),
+    categoria: categoria,
+    fecha: new Date().toISOString()
+  };
 }
 
 // ============================================================
@@ -84,7 +102,16 @@ function crearGasto(descripcion, monto, categoria) {
 //   4. guárdalo (Ejercicio 01) y vuelve a pintar todo: actualizarTodo()
 // ============================================================
 function agregarGasto() {
-  // Tu código aquí
+  let nuevoGasto = crearGasto(inputDescripcion.value, Number(inputMonto.value), selectCategoria.value);
+  if(nuevoGasto === null){
+    return;
+  }
+  gastos.push(nuevoGasto);
+  inputDescripcion.value = "";
+  inputMonto.value = "";
+
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -96,11 +123,24 @@ function agregarGasto() {
 // No compares el texto completo: la hora casi nunca es la misma.
 // ============================================================
 function esDeHoy(gasto) {
-  // Tu código aquí
+  let fechaGasto = new Date(gasto.fecha)
+  let fechaHoy = new Date();
+
+  return (
+    fechaGasto.getDate() === fechaHoy.getDate() &&
+    fechaGasto.getMonth() === fechaHoy.getMonth() &&
+    fechaGasto.getFullYear() === fechaHoy.getFullYear() 
+  )
 }
 
 function esDeEsteMes(gasto) {
-  // Tu código aquí
+  let fechaGasto = new Date(gasto.fecha)
+  let fechaHoy = new Date();
+
+   return (
+    fechaGasto.getMonth() === fechaHoy.getMonth() &&
+    fechaGasto.getFullYear() === fechaHoy.getFullYear() 
+  )
 }
 
 // ============================================================
@@ -112,11 +152,19 @@ function esDeEsteMes(gasto) {
 //   esDeEsteMes (con .filter) y sumarMontos.
 // ============================================================
 function sumarMontos(lista) {
-  // Tu código aquí
+  return lista.reduce((acumulador, gasto) => acumulador + gasto.monto, 0);
 }
 
 function mostrarTotales() {
-  // Tu código aquí
+  let gastoHoy = gastos.filter(esDeHoy)
+  let sumaHoy = sumarMontos(gastoHoy);
+
+  let gastoMes = gastos.filter(esDeEsteMes)
+  let sumaMes = sumarMontos(gastoMes)
+
+  totalHoy.textContent = formatearPesos(sumaHoy);
+  totalMes.textContent = formatearPesos(sumaMes);
+
 }
 
 // ============================================================
@@ -127,7 +175,15 @@ function mostrarTotales() {
 // Las 5 categorías siempre aparecen, aunque su total sea $0.
 // ============================================================
 function mostrarCategorias() {
-  // Tu código aquí
+  listaCategorias.innerHTML = "";
+
+  for(let categoria of CATEGORIAS){
+    let gastosCategoria = gastos.filter(gasto => gasto.categoria === categoria);
+    let sumaCategoria = sumarMontos(gastosCategoria);
+    let li = document.createElement("li");
+    li.textContent = `${categoria}: ${formatearPesos(sumaCategoria)}`;
+    listaCategorias.appendChild(li);
+  }
 }
 
 // ============================================================
@@ -139,7 +195,19 @@ function mostrarCategorias() {
 // (En el Ejercicio 10 vuelves aquí para agregar el filtro.)
 // ============================================================
 function mostrarLista() {
-  // Tu código aquí
+  listaGastos.innerHTML = "";
+
+  for(let i = 0; i < gastos.length; i++){
+    let gasto = gastos[i];
+
+    let li = document.createElement("li")
+    li.innerHTML = `${gasto.descripcion} - ${formatearPesos(gasto.monto)} (${gasto.categoria}) <button class="eliminar" data-index="${i}">Eliminar</button>`
+    if (filtroActual !== "Todas" && gasto.categoria !== filtroActual) {
+      continue;
+    }
+    listaGastos.appendChild(li);
+  }
+  
 }
 
 // ============================================================
@@ -151,7 +219,15 @@ function mostrarLista() {
 // - sácalo del arreglo con splice, guarda y vuelve a pintar TODO
 // ============================================================
 function eliminarGasto(evento) {
-  // Tu código aquí
+  if(!evento.target.classList.contains("eliminar")){
+    return; 
+  }
+
+  let posicion = Number(evento.target.dataset.index);
+
+  gastos.splice(posicion, 1);
+  guardarGastos();
+  actualizarTodo();
 }
 
 // ============================================================
@@ -165,11 +241,15 @@ function eliminarGasto(evento) {
 //   de otras categorías (data-index sigue siendo la posición en gastos)
 // ============================================================
 function cambiarFiltro() {
-  // Tu código aquí
+  filtroActual = filtroLista.value
+  sessionStorage.setItem(CLAVE_FILTRO, filtroActual);
+
+  actualizarTodo();
 }
 
 function cargarFiltro() {
-  // Tu código aquí
+  filtroActual = sessionStorage.getItem(CLAVE_FILTRO) || "Todas";
+  filtroLista.value = filtroActual;
 }
 
 // ===== Pintar todo (ya viene lista) =====
