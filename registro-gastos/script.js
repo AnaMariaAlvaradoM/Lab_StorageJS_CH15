@@ -149,11 +149,12 @@ function esDeEsteMes(gasto) {
 //   esDeEsteMes (con .filter) y sumarMontos.
 // ============================================================
 function sumarMontos(lista) {
-  // Tu código aquí
+  return lista.reduce((acumulador, gasto) => acumulador + gasto.monto, 0)
 }
 
 function mostrarTotales() {
-  // Tu código aquí
+  totalHoy.textContent = formatearPesos(sumarMontos(gastos.filter(esDeHoy)))
+  totalMes.textContent = formatearPesos(sumarMontos(gastos.filter(esDeEsteMes)))
 }
 
 // ============================================================
@@ -164,7 +165,11 @@ function mostrarTotales() {
 // Las 5 categorías siempre aparecen, aunque su total sea $0.
 // ============================================================
 function mostrarCategorias() {
-  // Tu código aquí
+  listaCategorias.innerHTML = ""
+  CATEGORIAS.forEach(categoria => {
+    const totalCategoria = sumarMontos(gastos.filter(gasto => gasto.categoria === categoria))
+    listaCategorias.innerHTML += `<li>${categoria}: ${formatearPesos(totalCategoria)}</li>`
+  })
 }
 
 // ============================================================
