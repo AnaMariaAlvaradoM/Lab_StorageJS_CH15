@@ -238,6 +238,10 @@ function mostrarLista() {
 
             gastos.forEach((gasto, index) => {
 
+            if (filtroActual !== "Todas" && gasto.categoria !== filtroActual) {
+                return;
+               }
+
             const li = document.createElement("li");
 
             li.innerHTML =
@@ -265,9 +269,20 @@ listaGastos.appendChild(li);
 // - sácalo del arreglo con splice, guarda y vuelve a pintar TODO
 // ============================================================
 function eliminarGasto(evento) {
-  // Tu código aquí
-}
+      
+      if (!evento.target.classList.contains("eliminar")) {
+          return;
+         }
 
+      const index = evento.target.dataset.index;
+
+      gastos.splice(index, 1);
+      
+guardarGastos();
+
+actualizarTodo();
+
+}
 // ============================================================
 // Ejercicio 10 · El filtro se recuerda solo en esta pestaña
 // ============================================================
@@ -279,13 +294,24 @@ function eliminarGasto(evento) {
 //   de otras categorías (data-index sigue siendo la posición en gastos)
 // ============================================================
 function cambiarFiltro() {
-  // Tu código aquí
+  
+     filtroActual = filtroLista.value;
+
+     sessionStorage.setItem(CLAVE_FILTRO, filtroActual);
+
+mostrarLista();
+
 }
 
 function cargarFiltro() {
-  // Tu código aquí
-}
+  
+    filtroActual =
+      
+    sessionStorage.getItem(CLAVE_FILTRO) || "Todas";
 
+    filtroLista.value = filtroActual;
+
+}
 // ===== Pintar todo (ya viene lista) =====
 function actualizarTodo() {
   mostrarTotales();
