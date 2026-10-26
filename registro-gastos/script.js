@@ -208,6 +208,9 @@ function mostrarLista() {
   listaGastos.innerHTML = ""
   for (let i = 0; i < gastos.length; i++) {
     let gastoActual = gastos[i]
+    if(filtroActual!="Todas" && filtroActual!=gastoActual.categoria ){
+      continue
+    }
     let nuevoGast = document.createElement("li")
     nuevoGast.textContent = `${gastoActual.descripcion} - ${formatearPesos(gastoActual.monto)} (${gastoActual.categoria})`
     let btnEliminar = document.createElement("button")
@@ -231,7 +234,13 @@ function mostrarLista() {
 // - sácalo del arreglo con splice, guarda y vuelve a pintar TODO
 // ============================================================
 function eliminarGasto(evento) {
-  // Tu código aquí
+  if (!evento.target.classList.contains("eliminar")) {
+    return
+  }
+  let leerIndex = Number(evento.target.dataset.index) //number para cambiar el texto
+  gastos.splice(leerIndex, 1)
+  guardarGastos()
+  actualizarTodo()
 }
 
 // ============================================================
@@ -245,12 +254,23 @@ function eliminarGasto(evento) {
 //   de otras categorías (data-index sigue siendo la posición en gastos)
 // ============================================================
 function cambiarFiltro() {
-  // Tu código aquí
+  filtroActual = filtroLista.value
+  sessionStorage.setItem(CLAVE_FILTRO, filtroActual)
+  mostrarLista()
+
 }
 
 function cargarFiltro() {
-  // Tu código aquí
+  const filtroNuevo = sessionStorage.getItem(CLAVE_FILTRO)
+  if (filtroNuevo === null) {
+    filtroActual = "Todas"
+  } else {
+    filtroActual = filtroNuevo
+  }
+  filtroLista.value = filtroActual
+
 }
+
 
 // ===== Pintar todo (ya viene lista) =====
 function actualizarTodo() {
