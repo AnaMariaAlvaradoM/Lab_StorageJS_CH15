@@ -129,11 +129,15 @@ function agregarGasto() {
 // No compares el texto completo: la hora casi nunca es la misma.
 // ============================================================
 function esDeHoy(gasto) {
-  
+  const fechaGasto = new Date(gasto.fecha)
+  const hoy = new Date()
+  return fechaGasto.getDate() === hoy.getDate() && fechaGasto.getMonth() === hoy.getMonth() && fechaGasto.getFullYear() === hoy.getFullYear()
 }
 
 function esDeEsteMes(gasto) {
-  // Tu código aquí
+  const fechaGasto = new Date(gasto.fecha)
+  const hoy = new Date()
+  return fechaGasto.getMonth() === hoy.getMonth() && fechaGasto.getFullYear() === hoy.getFullYear()
 }
 
 // ============================================================
