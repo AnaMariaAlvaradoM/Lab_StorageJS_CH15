@@ -42,7 +42,8 @@ function formatearPesos(valor) {
 // → empaca el arreglo con JSON.stringify.
 // ============================================================
 function guardarGastos() {
-  // Tu código aquí
+  const gastosTexto = JSON.stringify(gastos)
+  localStorage.setItem(CLAVE_GASTOS, gastosTexto)
 }
 
 // ============================================================
@@ -55,7 +56,18 @@ function guardarGastos() {
 //     (usa try/catch: la app debe seguir funcionando)
 // ============================================================
 function cargarGastos() {
-  // Tu código aquí
+  const texto = localStorage.getItem(CLAVE_GASTOS)
+  if (texto === null) {
+  gastos = []
+  return
+  }
+  try {
+    gastos = JSON.parse(texto)
+
+  } catch (error) {
+    gastos = []
+    console.warn("Error al deserializar los gastos:", error)
+  }
 }
 
 // ============================================================
@@ -69,7 +81,16 @@ function cargarGastos() {
 // un número mayor que 0 (ojo: Number("abc") da NaN).
 // ============================================================
 function crearGasto(descripcion, monto, categoria) {
-  // Tu código aquí
+  const limpiar = descripcion.trim()
+  if (limpiar === "" || limpiar.length === 0 || Number(monto) <= 0 || isNaN(Number(monto))) {
+    return null
+  } 
+  // const vMonto = Number(monto)
+  // if (isNaN(vMonto) || vMonto <= 0) {
+  //   return null
+  // }
+  fechaA = new Date().toISOString()
+  return {descripcion: limpiar, monto: Number(monto), categoria:categoria, fecha:fechaA}
 }
 
 // ============================================================
@@ -84,7 +105,19 @@ function crearGasto(descripcion, monto, categoria) {
 //   4. guárdalo (Ejercicio 01) y vuelve a pintar todo: actualizarTodo()
 // ============================================================
 function agregarGasto() {
-  // Tu código aquí
+  const descripcion = inputDescripcion.value
+  const monto = Number(inputMonto.value)
+  const categoria = selectCategoria.value
+
+  const nGasto = crearGasto(descripcion, monto, categoria)
+  if (nGasto === null) {
+    return
+  }
+  gastos.push(nGasto)
+  inputDescripcion.value = ""
+  inputMonto.value = ""
+  guardarGastos()
+  actualizarTodo()
 }
 
 // ============================================================
@@ -96,7 +129,7 @@ function agregarGasto() {
 // No compares el texto completo: la hora casi nunca es la misma.
 // ============================================================
 function esDeHoy(gasto) {
-  // Tu código aquí
+  
 }
 
 function esDeEsteMes(gasto) {
