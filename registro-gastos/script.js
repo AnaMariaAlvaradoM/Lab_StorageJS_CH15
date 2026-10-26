@@ -42,7 +42,8 @@ function formatearPesos(valor) {
 // → empaca el arreglo con JSON.stringify.
 // ============================================================
 function guardarGastos() {
-  // Tu código aquí
+  const gastosArray = JSON.stringify(gastos);
+  localStorage.setItem(CLAVE_GASTOS, gastosArray);
 }
 
 // ============================================================
@@ -55,7 +56,20 @@ function guardarGastos() {
 //     (usa try/catch: la app debe seguir funcionando)
 // ============================================================
 function cargarGastos() {
-  // Tu código aquí
+  let gastosText = localStorage.getItem(CLAVE_GASTOS);
+  
+  if (gastosText === null){
+    gastos = [];
+  } else {
+
+  try {
+    gastos = JSON.parse(gastosText);
+
+  } catch (error) {
+    gastos = [];
+  }
+  }
+
 }
 
 // ============================================================
@@ -69,7 +83,18 @@ function cargarGastos() {
 // un número mayor que 0 (ojo: Number("abc") da NaN).
 // ============================================================
 function crearGasto(descripcion, monto, categoria) {
-  // Tu código aquí
+  let description = descripcion.trim();
+  if (description.length === 0 || monto <= 0){
+    return null;
+  }
+  return {
+    descripcion: description,
+    monto: Number(5000),
+    categoria: categoria,
+    fecha: fecha = new Date().toISOString()
+  }
+
+  
 }
 
 // ============================================================
